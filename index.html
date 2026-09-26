@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+  <!-- กำหนดชุดอักขระ -->
+  <meta charset="UTF-8">
+
+  <!-- รองรับการแสดงผลบน Mobile -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <!-- ชื่อหน้าเว็บ -->
+  <title>ครัวมานา - จองคิว</title>
+
+  <!-- เชื่อมต่อไฟล์ CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+  <!-- ============ SHARED: LOGIN ============ -->
+
+  <!-- ---------- #loginScreen: เข้าสู่ระบบด้วยเบอร์โทร (จุดเดียวสำหรับทุกคน) ---------- -->
+  <section id="loginScreen" class="screen hidden">
+
+    <header class="header">
+      <button id="loginBackBtn" class="back-btn" type="button">&larr;</button>
+      <h1 class="screen-title">เข้าสู่ระบบด้วยเบอร์โทร</h1>
+    </header>
+
+    <main class="content">
+
+      <label for="phoneInput">เบอร์โทร</label>
+      <input type="tel" id="phoneInput" placeholder="เช่น 0812345678" maxlength="10">
+      <p id="phoneError" class="error hidden"></p>
+
+      <button id="sendOtpBtn" class="btn btn-secondary" type="button">ส่งรหัสยืนยัน</button>
+
+      <!-- ซ่อนไว้จนกว่าจะกดส่งรหัส -->
+      <div id="otpBox" class="hidden">
+        <!-- โชว์รหัสจำลองตรงๆ เพราะเป็น prototype ไม่ใช่ SMS จริง -->
+        <p id="demoOtpText" class="demo-text"></p>
+        <p class="meta-text">* นี่คือ prototype ไม่ได้ส่ง SMS จริง</p>
+
+        <label for="otpInput">รหัสยืนยัน</label>
+        <input type="text" id="otpInput" placeholder="กรอกรหัส 6 หลัก"
+               maxlength="6" inputmode="numeric">
+        <p id="otpError" class="error hidden"></p>
+
+        <button id="verifyOtpBtn" class="btn btn-primary" type="button">ยืนยันรหัส</button>
+      </div>
+
+    </main>
+
+  </section>
+
+
+  <!-- ============ CUSTOMER SCREENS ============ -->
+
+  <!-- ---------- #homeScreen: หน้าแรก ---------- -->
+  <section id="homeScreen" class="screen">
+
+    <header class="header screen-header-row">
+      <h1 class="screen-title">ครัวมานา</h1>
+      <!-- ชิปโปรไฟล์: แสดงเฉพาะเมื่อลูกค้าล็อกอิน (ข้อความ = ชื่อเล่น หรือเบอร์โทร) -->
+      <button id="profileChipBtn" class="profile-chip hidden" type="button"></button>
+    </header>
+
+    <main class="content">
+
+      <!-- แสดงเมื่อเปิดด้วย ?mode=dinein -->
+      <p id="dineInNotice" class="demo-text hidden">โหมดสแกน QR ที่โต๊ะ (จำลอง)</p>
+
+      <!-- สถานะคิวปัจจุบัน (สาธารณะ ดูได้โดยไม่ต้อง login) -->
+      <div class="status-card">
+        <p class="status-label">คิวที่รออยู่ตอนนี้</p>
+        <p class="status-number"><span id="waitingCount">0</span> คิว</p>
+        <p class="status-label">เวลารอโดยประมาณ</p>
+        <p class="status-number"><span id="waitingTime">0</span> นาที</p>
+      </div>
+
+      <!-- แสดงเมื่อร้านปิด (JS สลับ hidden) -->
+      <p id="closedMessage" class="error hidden">
+        ขณะนี้ร้านปิด (เปิด จันทร์-เสาร์ 11:00-20:00 น.)
+      </p>
+
+      <!-- ปุ่มจองคิว: ถูก disabled เมื่อร้านปิด -->
+      <button id="bookBtn" class="btn btn-primary" type="button">สั่งอาหารเลย</button>
+
+      <!-- จำลองการสแกน QR ที่โต๊ะ: โหลดหน้าใหม่พร้อม ?mode=dinein -->
+      <a id="dineInLink" class="link-text" href="index.html?mode=dinein">จำลองการสแกน QR ที่โต๊ะ</a>
+
+    </main>
+
+    <!-- Bottom Tab Bar: data-target บอกว่าปุ่มนี้ไป screen ไหน -->
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-target="homeScreen" type="button">หน้าแรก</button>
+      <button class="tab-btn" data-target="queueStatus" type="button">คิวของฉัน</button>
+    </nav>
+
+  </section>
+
+
+  <!-- ---------- #profileScreen: โปรไฟล์ลูกค้า ---------- -->
+  <section id="profileScreen" class="screen hidden">
+
+    <header class="header">
+      <button id="profileBackBtn" class="back-btn" type="button">&larr;</button>
+      <h1 class="screen-title">โปรไฟล์ของฉัน</h1>
+    </header>
+
+    <main class="content">
+
+      <!-- เบอร์โทร (อ่านอย่างเดียว) -->
+      <p class="label-text">เบอร์โทร</p>
+      <p id="profilePhoneText"></p>
+      <p class="meta-text">เปลี่ยนเบอร์ให้ออกจากระบบแล้วเข้าสู่ระบบใหม่ด้วยเบอร์ที่ถูกต้อง</p>
+
+      <label for="nicknameInput">ชื่อเล่น</label>
+      <input type="text" id="nicknameInput" placeholder="ตั้งชื่อเล่น (ไม่บังคับ)">
+
+      <button id="saveProfileBtn" class="btn btn-primary" type="button">บันทึก</button>
+      <button id="profileLogoutBtn" class="btn btn-secondary" type="button">ออกจากระบบ</button>
+
+    </main>
+
+  </section>
+
+
+  <!-- ---------- #menuScreen: เมนูอาหาร ---------- -->
+  <section id="menuScreen" class="screen hidden">
+
+    <header class="header">
+      <button id="menuBackBtn" class="back-btn" type="button">&larr;</button>
+      <h1 class="screen-title">เลือกเมนู</h1>
+    </header>
+
+    <main class="content">
+
+      <!-- แสดงแทนเมนูเมื่อร้านปิด -->
+      <p id="menuClosedText" class="error hidden">ร้านปิดแล้ว</p>
+
+      <!-- รายการเมนู (JS สร้างจาก menuItems) -->
+      <div id="menuList"></div>
+
+      <!-- สรุปตะกร้า -->
+      <div id="cartSummary" class="panel">
+        <h2 class="section-title">ตะกร้าของคุณ</h2>
+        <p id="cartEmptyText" class="meta-text">ยังไม่มีรายการ</p>
+        <ul id="cartList" class="item-list"></ul>
+        <p class="status-number">รวม <span id="cartTotal">0</span> บาท</p>
+      </div>
+
+      <button id="toBookingBtn" class="btn btn-primary" type="button" disabled>ถัดไป</button>
+
+    </main>
+
+    <!-- panel ปรับแต่งรายการ: ซ้อนทับหน้าเมนู (ไม่ใช่หน้าแยก) ซ่อนไว้จนกว่าจะกด "+ เพิ่ม" -->
+    <div id="customizePanel" class="overlay hidden">
+      <div class="overlay-box">
+        <h2 id="customizeTitle" class="section-title"></h2>
+
+        <p class="label-text">เพิ่มเติม (เลือกได้หลายอย่าง)</p>
+        <div id="addonList"></div>
+
+        <p class="label-text">ระดับความเผ็ด</p>
+        <div id="spiceList"></div>
+
+        <label for="itemNote">หมายเหตุ</label>
+        <textarea id="itemNote" rows="2" placeholder="เช่น ไม่กินผัก, ไม่เอาหนัง"></textarea>
+
+        <button id="confirmAddBtn" class="btn btn-primary" type="button">เพิ่มลงตะกร้า</button>
+        <button id="cancelAddBtn" class="btn btn-secondary" type="button">ยกเลิก</button>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ---------- #bookingForm: แบบฟอร์มจอง ---------- -->
+  <section id="bookingForm" class="screen hidden">
+
+    <header class="header">
+      <button id="bookingBackBtn" class="back-btn" type="button">&larr;</button>
+      <h1 class="screen-title">รายละเอียดการรับอาหาร</h1>
+    </header>
+
+    <main class="content">
+
+      <label for="nameInput">ชื่อ</label>
+      <input type="text" id="nameInput" placeholder="กรอกชื่อของคุณ">
+
+      <label for="arrivalTime">เวลาที่จะมาถึง</label>
+      <button id="nowBtn" class="btn btn-secondary" type="button">มาถึงตอนนี้เลย</button>
+      <input type="time" id="arrivalTime">
+
+      <p class="label-text">รูปแบบการทาน</p>
+      <label class="radio-row">
+        <input type="radio" name="dineType" value="ทานที่ร้าน" checked> ทานที่ร้าน
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="dineType" value="กลับบ้าน"> กลับบ้าน
+      </label>
+
+      <p id="formError" class="error hidden"></p>
+
+      <button id="toPaymentBtn" class="btn btn-primary" type="button">ถัดไป</button>
+
+    </main>
+
+  </section>
+
+
+  <!-- ---------- #paymentScreen: ชำระเงิน ---------- -->
+  <section id="paymentScreen" class="screen hidden">
+
+    <header class="header">
+      <button id="paymentBackBtn" class="back-btn" type="button">&larr;</button>
+      <h1 class="screen-title">ชำระเงิน</h1>
+    </header>
+
+    <main class="content">
+
+      <div class="panel">
+        <h2 class="section-title">สรุปออเดอร์</h2>
+        <p id="paymentInfo" class="meta-text"></p>
+        <ul id="paymentList" class="item-list"></ul>
+        <p class="status-number">รวม <span id="paymentTotal">0</span> บาท</p>
+      </div>
+
+      <!-- QR จำลอง (ลายกระดานหมากรุกด้วย CSS ไม่ได้สแกนได้จริง) -->
+      <div id="qrCodeBox"></div>
+      <p class="meta-text center">QR Code สำหรับชำระเงิน (จำลอง)</p>
+
+      <button id="paidBtn" class="btn btn-primary" type="button">ชำระเงินแล้ว</button>
+
+    </main>
+
+  </section>
+
+
+  <!-- ---------- #queueStatus: คิวของฉัน ---------- -->
+  <section id="queueStatus" class="screen hidden">
+
+    <header class="header">
+      <h1 class="screen-title">คิวของฉัน</h1>
+    </header>
+
+    <main class="content">
+
+      <!-- แสดงเมื่อยังไม่ล็อกอิน: ให้ไปล็อกอินก่อนดูคิว -->
+      <div id="loginRequiredBox" class="hidden">
+        <p class="meta-text">เข้าสู่ระบบก่อนเพื่อดูคิวของคุณ</p>
+        <button id="goLoginBtn" class="btn btn-primary" type="button">เข้าสู่ระบบ</button>
+      </div>
+
+      <!-- แสดงเมื่อล็อกอินแล้วแต่ยังไม่มีออเดอร์ -->
+      <p id="noQueueText" class="meta-text hidden">คุณยังไม่มีคิว กด "สั่งอาหารเลย" ที่หน้าแรก</p>
+
+      <!-- ตำแหน่งคิว + countdown ของออเดอร์หลัก (JS เขียนข้อความให้) -->
+      <div id="queueDisplay" class="status-card center hidden"></div>
+
+      <!-- สรุปรายการอาหารของออเดอร์หลัก -->
+      <div id="queueOrderBox" class="panel hidden">
+        <h2 class="section-title">รายการที่สั่ง</h2>
+        <ul id="queueOrderList" class="item-list"></ul>
+      </div>
+
+      <!-- ออเดอร์อื่นๆ ของลูกค้า (แสดงเมื่อสั่งมากกว่า 1 ครั้ง) -->
+      <div id="otherOrdersBox" class="panel hidden">
+        <h2 class="section-title">ออเดอร์อื่นของคุณ</h2>
+        <ul id="otherOrdersList" class="item-list"></ul>
+      </div>
+
+      <button id="backHomeBtn" class="btn btn-secondary" type="button">กลับหน้าแรก</button>
+
+    </main>
+
+    <nav class="tab-bar">
+      <button class="tab-btn" data-target="homeScreen" type="button">หน้าแรก</button>
+      <button class="tab-btn active" data-target="queueStatus" type="button">คิวของฉัน</button>
+    </nav>
+
+  </section>
+
+
+  <!-- ============ SHOP SCREENS ============ -->
+
+  <!-- ---------- #shopScreen: มุมมองร้านค้า (เฉพาะ isShopLoggedIn === true) ---------- -->
+  <section id="shopScreen" class="screen hidden">
+
+    <header class="header">
+      <h1 class="screen-title">มุมมองร้านค้า</h1>
+      <button id="shopLogoutBtn" class="logout-btn" type="button">ออกจากระบบ</button>
+    </header>
+
+    <!-- แท็บภายใน (data-tab ตรงกับ id ของ panel ด้านล่าง) -->
+    <nav class="shop-tabs">
+      <button class="shop-tab-btn active" data-tab="shopQueueTab" type="button">คิวปัจจุบัน</button>
+      <button class="shop-tab-btn" data-tab="shopKitchenTab" type="button">สรุปเมนูที่ต้องทำ</button>
+      <button class="shop-tab-btn" data-tab="shopMenuTab" type="button">จัดการเมนู</button>
+    </nav>
+
+    <main class="content">
+
+      <!-- แท็บ 1: คิวปัจจุบัน -->
+      <div id="shopQueueTab" class="shop-tab-panel">
+        <p id="shopEmptyText" class="meta-text">ยังไม่มีออเดอร์</p>
+        <!-- การ์ดออเดอร์แต่ละใบ (JS สร้างจาก getSortedActiveOrders) -->
+        <div id="shopOrderList"></div>
+      </div>
+
+      <!-- แท็บ 2: สรุปเมนูที่ต้องทำ -->
+      <div id="shopKitchenTab" class="shop-tab-panel hidden">
+        <p id="kitchenEmptyText" class="meta-text">ยังไม่มีเมนูที่ต้องทำ</p>
+        <div id="kitchenBatchList"></div>
+        <p class="meta-text">
+          * จัดกลุ่มจากเมนูหลักเท่านั้น ไม่รวมเครื่องเคียง/ความเผ็ด
+          เช็ครายละเอียดที่แท็บคิวปัจจุบันอีกครั้งก่อนเสิร์ฟ
+        </p>
+      </div>
+
+      <!-- แท็บ 3: จัดการเมนู -->
+      <div id="shopMenuTab" class="shop-tab-panel hidden">
+        <div id="menuManageList"></div>
+
+        <div class="panel">
+          <h2 class="section-title">เพิ่มเมนูใหม่</h2>
+          <input type="text" id="newItemName" placeholder="ชื่อเมนู">
+          <input type="number" id="newItemPrice" placeholder="ราคา (บาท)" min="1">
+          <p id="newItemError" class="error hidden"></p>
+          <button id="addMenuItemBtn" class="btn btn-primary" type="button">เพิ่มเมนู</button>
+        </div>
+      </div>
+
+    </main>
+
+  </section>
+
+
+  <!-- library สร้าง QR Code (โหลดจาก CDN ต้องมีอินเทอร์เน็ตครั้งแรก) ต้องอยู่ก่อนไฟล์ script ของเรา -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <!-- เชื่อมต่อไฟล์ JavaScript (ลำดับสำคัญ: data → utils → customer → shop → app) -->
+  <script src="js/data.js"></script>
+  <script src="js/queue-utils.js"></script>
+  <script src="js/customer.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+
+</html>
