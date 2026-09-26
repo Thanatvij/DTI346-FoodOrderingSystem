@@ -507,3 +507,19 @@ textarea:focus {
     padding: var(--space-6);
   }
 }
+
+/* ขนาดกระดาษใบเสร็จ (@page ต้องอยู่นอกบล็อก @media) — ถ้าเครื่องจริงเป็น 58mm ให้เปลี่ยนตัวเลข */
+@page {
+  size: 80mm auto;   /* ความกว้างมาตรฐานกระดาษใบเสร็จ ความสูงยืดตามเนื้อหา */
+  margin: 5mm;
+}
+
+/* ---------- พิมพ์ใบเสร็จ: ซ่อนทุกอย่างยกเว้น #receiptTemplate ---------- */
+@media print {
+  body * { visibility: hidden; }
+  #receiptTemplate, #receiptTemplate * { visibility: visible; }
+  #receiptTemplate {
+    position: absolute; top: 0; left: 0;
+    width: 300px;
+  }
+}

@@ -57,3 +57,69 @@ const isDineInMode = new URLSearchParams(window.location.search).get("mode") ===
 โครงสร้าง 1 order ใน allOrders:
 { queueNumber, customerName, arrivalTime, dineType, cart, totalPrice, paid: true, phone, completed: false }
 */
+
+
+// ================================
+// SEED_TEST_ORDERS — ออเดอร์จำลองสำหรับทดสอบ/dev เท่านั้น
+// ต้องลบฟังก์ชัน seedTestOrders() ทั้งหมดนี้ทิ้งก่อนส่งงานจริง (ไม่ใช่แค่ตั้ง false)
+// เพราะเป็นแค่ scaffolding ไว้ทดสอบ ไม่ใช่ฟีเจอร์ของระบบจริง
+// ================================
+const SEED_TEST_ORDERS = true;
+
+function seedTestOrders() {
+  const now = new Date();
+
+  function timeLabelOffset(offsetMinutes) {
+    const d = new Date(now.getTime() + offsetMinutes * 60000);
+    const h = d.getHours().toString().padStart(2, "0");
+    const m = d.getMinutes().toString().padStart(2, "0");
+    return h + ":" + m;
+  }
+
+  const seedData = [
+    {
+      customerName: "Mind", phone: "0898887771", offset: -10, dineType: "ทานที่ร้าน",
+      cart: [{ menuId: "m1", addons: ["a1"], spiceLevel: "เผ็ดน้อย", note: "" }]
+    },
+    {
+      customerName: "Ploy", phone: "0898887772", offset: -5, dineType: "กลับบ้าน",
+      cart: [
+        { menuId: "m2", addons: [], spiceLevel: "ไม่เผ็ด", note: "" },
+        { menuId: "m6", addons: [], spiceLevel: "เผ็ดปานกลาง", note: "ไม่ใส่ถั่วลิสง" }
+      ]
+    },
+    {
+      customerName: "Best", phone: "0898887773", offset: 2, dineType: "ทานที่ร้าน",
+      cart: [{ menuId: "m4", addons: [], spiceLevel: "เผ็ดมาก", note: "" }]
+    },
+    {
+      customerName: "Aom", phone: "0898887774", offset: 8, dineType: "กลับบ้าน",
+      cart: [
+        { menuId: "m9", addons: [], spiceLevel: "ไม่เผ็ด", note: "ไม่กินผัก" },
+        { menuId: "m13", addons: [], spiceLevel: "ไม่เผ็ด", note: "" }
+      ]
+    },
+    {
+      customerName: "Guy", phone: "0898887775", offset: 15, dineType: "ทานที่ร้าน",
+      cart: [
+        { menuId: "m1", addons: ["a2", "a3"], spiceLevel: "เผ็ดปานกลาง", note: "" },
+        { menuId: "m1", addons: ["a1"], spiceLevel: "ไม่เผ็ด", note: "สั่งให้เพื่อนด้วย" }
+      ]
+    }
+  ];
+
+  seedData.forEach(function (item) {
+    queueCounter++;
+    allOrders.push({
+      queueNumber: queueCounter,
+      customerName: item.customerName,
+      arrivalTime: timeLabelOffset(item.offset),
+      dineType: item.dineType,
+      cart: item.cart,
+      totalPrice: calcTotal(item.cart),
+      paid: true,
+      phone: item.phone,
+      completed: false
+    });
+  });
+}

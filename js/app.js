@@ -124,4 +124,10 @@ verifyOtpBtn.addEventListener("click", function () {
 // ================================
 buildCustomizeOptions();                          // สร้าง add-on / ระดับเผ็ด (customer.js)
 dineInNotice.classList.toggle("hidden", !isDineInMode); // โชว์ข้อความถ้ามาจาก ?mode=dinein
+
+// ออเดอร์จำลองสำหรับทดสอบ (dev เท่านั้น — ต้องลบ seedTestOrders ใน data.js ทิ้งก่อนส่งงานจริง)
+if (typeof SEED_TEST_ORDERS !== "undefined" && SEED_TEST_ORDERS) {
+  seedTestOrders();
+}
+
 showScreen("homeScreen");

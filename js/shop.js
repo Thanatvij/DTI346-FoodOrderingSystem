@@ -74,14 +74,13 @@ function renderShopOrders() {
     const total = document.createElement("p");
     total.textContent = "รวม " + order.totalPrice + " บาท";
 
-    // ปุ่ม "ทำเสร็จแล้ว" ต่อใบ (ใช้ class เพราะมีหลายใบ) → completed = true
+    // ปุ่ม "ทำเสร็จแล้ว" ต่อใบ (ใช้ class เพราะมีหลายใบ) → ส่ง order ของการ์ดนี้เข้า handleCompleteOrder
     const completeBtn = document.createElement("button");
     completeBtn.className = "btn btn-primary completeBtn";
     completeBtn.type = "button";
     completeBtn.textContent = "ทำเสร็จแล้ว";
     completeBtn.addEventListener("click", function () {
-      order.completed = true;
-      renderShop(); // ออเดอร์หายจากคิว + สรุปเมนูอัปเดตตาม
+      handleCompleteOrder(order);
     });
 
     card.appendChild(title);
@@ -93,6 +92,86 @@ function renderShopOrders() {
     shopOrderList.appendChild(card);
   });
 }
+
+// ================================
+// กด "ทำเสร็จแล้ว": ทำเครื่องหมายเสร็จ (การ์ดหายจากคิวทันที) แล้วถามว่าจะพิมพ์ใบเสร็จไหม
+// กด Cancel = ไม่พิมพ์ และย้อนกลับมาพิมพ์ทีหลังไม่ได้ (ออเดอร์ไม่อยู่ในลิสต์แล้ว)
+// ================================
+function handleCompleteOrder(order) {
+  // จับตำแหน่งคิวไว้ก่อนทำเครื่องหมายเสร็จ (หลังเสร็จ getQueuePosition จะคืน 0 เพราะออกจากคิวแล้ว)
+  const queuePosition = getQueuePosition(order);
+
+  order.completed = true;
+  renderShop(); // ออเดอร์หายจากคิว + สรุปเมนูอัปเดตตาม
+
+  const wantsPrint = window.confirm(
+    "ออเดอร์ #" + order.queueNumber + " เสร็จแล้ว\nต้องการพิมพ์ใบเสร็จหรือไม่?"
+  );
+
+  if (wantsPrint) {
+    printReceipt(order, queuePosition); // ใช้ order ที่ส่งเข้ามาตรงๆ ไม่ต้องหาใหม่จาก DOM หรือ allOrders
+  }
+}
+
+// ================================
+// พิมพ์ใบเสร็จของ 1 ออเดอร์: เติมข้อมูลลง #receiptContent แล้วเรียก print dialog ของเบราว์เซอร์
+// ใช้ textContent สร้างทีละบรรทัด (ไม่ใช้ innerHTML) เพราะชื่อลูกค้าเป็นข้อความที่ผู้ใช้พิมพ์เอง
+// queuePosition = ตำแหน่งคิวตอนกดเสร็จ (ไม่ส่งมา = คำนวณสดจาก getQueuePosition)
+// ================================
+function printReceipt(order, queuePosition) {
+  if (queuePosition === undefined) queuePosition = getQueuePosition(order);
+
+  const content = document.querySelector("#receiptContent");
+  content.textContent = ""; // ล้างใบเสร็จเดิมก่อน
+
+  // เพิ่ม 1 บรรทัดลงในใบเสร็จ (tag ไม่ระบุ = <p>)
+  function addLine(text, tag) {
+    const el = document.createElement(tag || "p");
+    el.textContent = text;
+    content.appendChild(el);
+  }
+
+  addLine("ครัวมานา", "h2");
+  addLine("คิวที่ " + queuePosition + " — ออเดอร์ #" + order.queueNumber);
+  addLine("ชื่อ: " + order.customerName);
+  addLine("เวลา: " + order.arrivalTime + " | " + order.dineType);
+  content.appendChild(document.createElement("hr"));
+
+  // รายการอาหาร: ใช้ itemLabel/itemPrice ตัวเดียวกับหน้าชำระเงินและคิวของฉัน
+  // itemLabel คั่นด้วย \n (ชื่อ+เครื่องเคียง / ระดับเผ็ด / โน้ต) — <p> ไม่ขึ้นบรรทัดใหม่ให้เอง
+  // จึงแยกเป็นบรรทัดละ 1 <p> ราคาต่อท้ายบรรทัดแรก
+  order.cart.forEach(function (item) {
+    const lines = itemLabel(item).split("\n");
+    addLine(lines[0] + " — " + itemPrice(item) + " บาท");
+    lines.slice(1).forEach(function (line) {
+      addLine(line);
+    });
+  });
+
+  content.appendChild(document.createElement("hr"));
+  addLine("รวม " + order.totalPrice + " บาท", "strong");
+
+  document.querySelector("#receiptTemplate").classList.remove("hidden"); // ต้องเอา hidden ออกก่อน ไม่งั้น display:none บังตอนพิมพ์
+
+  // ตั้งชื่อไฟล์ชั่วคราวสำหรับตอน Save as PDF (เบราว์เซอร์ใช้ค่า title ณ ตอนพิมพ์เป็นชื่อไฟล์)
+  const originalTitle = document.title;
+  document.title = "Receipt-" + String(order.queueNumber).padStart(2, "0");
+
+  window.print();
+
+  // คืนค่า title เดิมทันที (print() บล็อกจนกว่า dialog จะปิดในเบราว์เซอร์ส่วนใหญ่)
+  document.title = originalTitle;
+
+  // ข้อสำคัญ: ฟังก์ชันนี้ห้ามแตะ order.completed หรือทำให้ออเดอร์หายจากคิว
+  // — พิมพ์ใบเสร็จไม่ใช่การทำเครื่องหมายว่าเสร็จงาน
+}
+
+// Event: พิมพ์เสร็จหรือยกเลิกการพิมพ์ → ซ่อนใบเสร็จกลับ
+// (ห้ามมีโค้ดอื่นในนี้นอกจากซ่อน receiptTemplate — โดยเฉพาะเรื่อง completed/re-render)
+window.addEventListener("afterprint", function () {
+  document.querySelector("#receiptTemplate").classList.add("hidden");
+});
+
 
 // ================================
 // แท็บ "สรุปเมนูที่ต้องทำ": จัดกลุ่มเมนูตามช่วงเวลา 15 นาที

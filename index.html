@@ -11,7 +11,7 @@
         content="width=device-width, initial-scale=1.0">
 
   <!-- ชื่อหน้าเว็บ -->
-  <title>ครัวมานา - จองคิว</title>
+  <title>ครัวมานา - สั่งอาหาร</title>
 
   <!-- เชื่อมต่อไฟล์ CSS -->
   <link rel="stylesheet" href="css/style.css">
@@ -339,6 +339,11 @@
 
   </section>
 
+
+  <!-- ใบเสร็จสำหรับพิมพ์: ซ่อนไว้ปกติ shop.js เติมเนื้อหาและเอา hidden ออกตอนสั่งพิมพ์ -->
+  <div id="receiptTemplate" class="hidden">
+    <div id="receiptContent"></div>
+  </div>
 
   <!-- library สร้าง QR Code (โหลดจาก CDN ต้องมีอินเทอร์เน็ตครั้งแรก) ต้องอยู่ก่อนไฟล์ script ของเรา -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
