@@ -340,8 +340,9 @@
   </section>
 
 
-  <!-- ใบเสร็จสำหรับพิมพ์: ซ่อนไว้ปกติ shop.js เติมเนื้อหาและเอา hidden ออกตอนสั่งพิมพ์ -->
-  <div id="receiptTemplate" class="hidden">
+  <!-- ใบเสร็จสำหรับพิมพ์: shop.js เติมเนื้อหาให้ ส่วนการซ่อน/แสดง CSS จัดการเองผ่าน @media print
+       (ไม่ใช้ class hidden — ไม่โผล่บนจอปกติ โผล่เฉพาะตอนพิมพ์) -->
+  <div id="receiptTemplate">
     <div id="receiptContent"></div>
   </div>
 

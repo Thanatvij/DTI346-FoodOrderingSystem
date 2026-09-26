@@ -514,12 +514,21 @@ textarea:focus {
   margin: 5mm;
 }
 
+/* ---------- ใบเสร็จ: บนจอปกติไม่แสดง (ไม่ใช้ class .hidden ตัวกลาง) ---------- */
+#receiptTemplate {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+
 /* ---------- พิมพ์ใบเสร็จ: ซ่อนทุกอย่างยกเว้น #receiptTemplate ---------- */
 @media print {
   body * { visibility: hidden; }
   #receiptTemplate, #receiptTemplate * { visibility: visible; }
   #receiptTemplate {
+    visibility: visible;
+    height: auto;
     position: absolute; top: 0; left: 0;
-    width: 300px;
+    width: 100%; /* พอดีกับความกว้างกระดาษที่ตั้งไว้ (80mm หรือ custom) กันขอบขวาถูกตัด */
   }
 }

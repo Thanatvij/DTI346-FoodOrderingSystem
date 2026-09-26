@@ -151,7 +151,7 @@ function printReceipt(order, queuePosition) {
   content.appendChild(document.createElement("hr"));
   addLine("รวม " + order.totalPrice + " บาท", "strong");
 
-  document.querySelector("#receiptTemplate").classList.remove("hidden"); // ต้องเอา hidden ออกก่อน ไม่งั้น display:none บังตอนพิมพ์
+  // ไม่ต้องสั่งแสดง/ซ่อนใบเสร็จเอง — CSS (@media print) จัดการให้ ใบเสร็จโผล่เฉพาะตอนพิมพ์
 
   // ตั้งชื่อไฟล์ชั่วคราวสำหรับตอน Save as PDF (เบราว์เซอร์ใช้ค่า title ณ ตอนพิมพ์เป็นชื่อไฟล์)
   const originalTitle = document.title;
@@ -165,12 +165,6 @@ function printReceipt(order, queuePosition) {
   // ข้อสำคัญ: ฟังก์ชันนี้ห้ามแตะ order.completed หรือทำให้ออเดอร์หายจากคิว
   // — พิมพ์ใบเสร็จไม่ใช่การทำเครื่องหมายว่าเสร็จงาน
 }
-
-// Event: พิมพ์เสร็จหรือยกเลิกการพิมพ์ → ซ่อนใบเสร็จกลับ
-// (ห้ามมีโค้ดอื่นในนี้นอกจากซ่อน receiptTemplate — โดยเฉพาะเรื่อง completed/re-render)
-window.addEventListener("afterprint", function () {
-  document.querySelector("#receiptTemplate").classList.add("hidden");
-});
 
 
 // ================================

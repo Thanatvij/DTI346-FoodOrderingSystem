@@ -3,3 +3,6 @@ QR code.JPEG
 
 # ไฟล์ระบบของ macOS
 .DS_Store
+
+# ไฟล์ PDF ทดสอบพิมพ์ใบเสร็จ
+*.pdf
