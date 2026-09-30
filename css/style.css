@@ -29,7 +29,11 @@
   --shadow-card: 0 2px 12px rgba(35, 41, 31, 0.08);
 }
 
-/* กำหนด Box Model: padding/border นับรวมในความกว้าง */
+/* กำหนด Box Model: padding/border นับรวมในความกว้าง (ไม่บวกเพิ่มจากที่ตั้งไว้)
+   เบราว์เซอร์แต่ละตัวมี margin/padding เริ่มต้นของ h1, p, button ไม่เท่ากัน
+   (เช่น Safari กับ Chrome ให้ค่าเริ่มต้นต่างกัน) จึงรีเซ็ตเป็น 0 ก่อนทั้งหมด
+   แล้วค่อยกำหนด spacing เองทุกจุดผ่าน design tokens (--space-1 ถึง --space-6)
+   ด้านบน เพื่อให้หน้าตาตรงกันทุกเบราว์เซอร์ */
 * {
   box-sizing: border-box;
   margin: 0;

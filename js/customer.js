@@ -279,6 +279,11 @@ function renderCart() {
 function getWaitText(order) {
   const maxMinutes = getQueuePosition(order) * AVG_MINUTES_PER_ORDER;
   // เวลาที่เหลือ = ค่าจากตัวนับ (ลดทุกนาที) แต่ไม่เกิน ตำแหน่ง x เวลาเฉลี่ย
+  // ทำไมต้องมี Math.min ครอบ: ถ้าใช้ counted อย่างเดียวจะมีบั๊ก — สมมติเราอยู่คิวที่ 5
+  // ระบบตั้ง counted ไว้ 25 นาที แต่ถ้าคนคิวก่อนหน้าถูกร้านกด "ทำเสร็จแล้ว" ไปหลายคน
+  // ตำแหน่งเราขยับมาเป็นคิวที่ 2 ทันที (maxMinutes เหลือ 10) แต่ counted ที่ตั้งไว้ตั้งแต่แรก
+  // จะยังค้างอยู่ที่ 25 นาที ไม่รู้ว่าคิวขยับแล้ว การเอา Math.min มาครอบจึงบังคับให้เลขที่
+  // แสดงไม่มีทางเกินความเป็นจริง ณ ตอนนั้น
   const counted = minutesLeftByOrder[order.queueNumber];
   const minutes = (counted === undefined) ? maxMinutes : Math.min(counted, maxMinutes);
   return (minutes <= 0)
@@ -495,7 +500,9 @@ toBookingBtn.addEventListener("click", function () {
   formError.classList.add("hidden");
   if (isDineInMode && arrivalTime.value === "") {
     document.querySelector("input[name='dineType'][value='ทานที่ร้าน']").checked = true;
-    nowBtn.click(); // ใช้ logic เดียวกับปุ่ม "มาถึงตอนนี้เลย"
+    // เรียก nowBtn.click() แทนเขียน logic เติมเวลาซ้ำอีกชุด — จงใจ reuse event listener
+    // ของปุ่ม "มาถึงตอนนี้เลย" ที่มีอยู่แล้วตรงๆ (ดูด้านล่าง) ไม่ต้อง copy โค้ดเดิมมาวางซ้ำ
+    nowBtn.click();
   }
   showScreen("bookingForm");
 });

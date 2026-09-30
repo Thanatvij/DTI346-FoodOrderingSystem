@@ -4,7 +4,7 @@
 
 // ตรวจเวลาทำการร้าน: ปิดวันอาทิตย์, เปิด 11:00-20:00
 function isShopOpen() {
-  if (!ENFORCE_SHOP_HOURS) return true;    // ปิดใช้งานชั่วคราวระหว่างพัฒนา
+  if (!ENFORCE_SHOP_HOURS) return true;    // true = บังคับเช็ควันเวลาทำการจริง (เปิดใช้งานสำหรับส่งงานจริง)
   const now = new Date();
   const day = now.getDay();                // 0 = อาทิตย์
   const mins = now.getHours() * 60 + now.getMinutes();
@@ -29,6 +29,13 @@ function minutesToTimeLabel(mins) {
 }
 
 // ออเดอร์ที่ยังไม่เสร็จ เรียงตามเวลาที่จะมาถึง (น้อย → มาก)
+//
+// ถ้าเวลาเท่ากันเป๊ะ (เช่น 2 ออเดอร์ตั้งเวลามาถึง 12:30 เหมือนกัน) comparator ด้านล่างจะคืนค่า
+// 0 พอดี ซึ่ง JavaScript (ตั้งแต่มาตรฐาน ES2019) การันตีว่า Array.prototype.sort() เป็น
+// "stable sort" คือถ้าสองรายการเปรียบเทียบแล้วเท่ากัน จะไม่ถูกสลับตำแหน่งกัน แต่คงลำดับเดิม
+// ที่อยู่ใน array ไว้ ลำดับเดิมใน allOrders มาจากการ push() เข้าไปตอนกด "ชำระเงินแล้ว" ซึ่งก็
+// คือลำดับที่จ่ายเงินสำเร็จนั่นเอง — เท่ากับว่าเมื่อเวลาชนกันเป๊ะ ระบบ fallback ไปใช้ลำดับการ
+// จ่ายเงินให้เองโดยอัตโนมัติ ไม่ต้องเขียน logic เทียบลำดับที่สองเพิ่มเลย
 function getSortedActiveOrders() {
   return allOrders
     .filter(function (o) { return !o.completed; })

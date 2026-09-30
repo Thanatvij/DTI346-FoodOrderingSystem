@@ -35,7 +35,9 @@ function showScreen(screenId) {
   });
   document.querySelector("#" + screenId).classList.remove("hidden");
 
-  // ซ่อน Tab Bar หลักถ้าอยู่ในโหมดร้านค้า
+  // ซ่อน Tab Bar หลักถ้าอยู่ในโหมดร้านค้า — ปุ่ม "หน้าแรก / คิวของฉัน" เป็นเมนูของฝั่งลูกค้า
+  // เท่านั้น ร้านค้ามี navigation ของตัวเองแยกต่างหาก (แท็บภายในหน้า #shopScreen) จึงไม่ต้อง
+  // แสดง Tab Bar นี้ซ้อนทับเมื่อ login เป็นร้านค้า
   allTabBars.forEach(function (bar) {
     bar.classList.toggle("hidden", isShopLoggedIn);
   });
@@ -125,9 +127,6 @@ verifyOtpBtn.addEventListener("click", function () {
 buildCustomizeOptions();                          // สร้าง add-on / ระดับเผ็ด (customer.js)
 dineInNotice.classList.toggle("hidden", !isDineInMode); // โชว์ข้อความถ้ามาจาก ?mode=dinein
 
-// ออเดอร์จำลองสำหรับทดสอบ (dev เท่านั้น — ต้องลบ seedTestOrders ใน data.js ทิ้งก่อนส่งงานจริง)
-if (typeof SEED_TEST_ORDERS !== "undefined" && SEED_TEST_ORDERS) {
-  seedTestOrders();
-}
+loadDemoOrders(); // ออเดอร์ตัวอย่างสำหรับสาธิต — ลบบรรทัดนี้ถ้าไม่ต้องการคิวตัวอย่างอีกต่อไป
 
 showScreen("homeScreen");

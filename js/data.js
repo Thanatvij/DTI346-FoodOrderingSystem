@@ -32,7 +32,7 @@ const SPICE_LEVELS = ["ไม่เผ็ด", "เผ็ดน้อย", "เ�
 
 // ---------- ค่าคงที่ ----------
 const SELLER_PHONES = ["0811111111"];  // เบอร์โทรร้านค้า (ตัวอย่าง สำหรับ demo)
-const ENFORCE_SHOP_HOURS = false;      // ปิดเช็คเวลาทำการระหว่าง dev — เปลี่ยนเป็น true ก่อนส่งงานจริง
+const ENFORCE_SHOP_HOURS = true;       // เช็คเวลาทำการร้านจริง
 const AVG_MINUTES_PER_ORDER = 5;       // เวลาเฉลี่ยต่อ 1 ออเดอร์ (นาที)
 
 // ---------- State หลัก ----------
@@ -60,13 +60,12 @@ const isDineInMode = new URLSearchParams(window.location.search).get("mode") ===
 
 
 // ================================
-// SEED_TEST_ORDERS — ออเดอร์จำลองสำหรับทดสอบ/dev เท่านั้น
-// ต้องลบฟังก์ชัน seedTestOrders() ทั้งหมดนี้ทิ้งก่อนส่งงานจริง (ไม่ใช่แค่ตั้ง false)
-// เพราะเป็นแค่ scaffolding ไว้ทดสอบ ไม่ใช่ฟีเจอร์ของระบบจริง
+// loadDemoOrders — ออเดอร์ตัวอย่างสำหรับสาธิตวันสอบปากเปล่า (2 ต.ค.)
+// ใส่ไว้ถาวรเพื่อไม่ต้องเปิดคอนโซล/จดคำสั่งตอนอยู่หน้าอาจารย์
+// ลบได้เองทีหลังถ้าไม่ต้องการ: ลบฟังก์ชันนี้ทั้งก้อน + บรรทัดที่เรียก loadDemoOrders()
+// ใน app.js
 // ================================
-const SEED_TEST_ORDERS = true;
-
-function seedTestOrders() {
+function loadDemoOrders() {
   const now = new Date();
 
   function timeLabelOffset(offsetMinutes) {
@@ -76,39 +75,22 @@ function seedTestOrders() {
     return h + ":" + m;
   }
 
-  const seedData = [
+  const demoData = [
     {
-      customerName: "Mind", phone: "0898887771", offset: -10, dineType: "ทานที่ร้าน",
+      customerName: "Mind", phone: "0898887771", offset: 5, dineType: "ทานที่ร้าน",
       cart: [{ menuId: "m1", addons: ["a1"], spiceLevel: "เผ็ดน้อย", note: "" }]
     },
     {
-      customerName: "Ploy", phone: "0898887772", offset: -5, dineType: "กลับบ้าน",
-      cart: [
-        { menuId: "m2", addons: [], spiceLevel: "ไม่เผ็ด", note: "" },
-        { menuId: "m6", addons: [], spiceLevel: "เผ็ดปานกลาง", note: "ไม่ใส่ถั่วลิสง" }
-      ]
+      customerName: "Ploy", phone: "0898887772", offset: 20, dineType: "กลับบ้าน",
+      cart: [{ menuId: "m2", addons: [], spiceLevel: "ไม่เผ็ด", note: "" }]
     },
     {
-      customerName: "Best", phone: "0898887773", offset: 2, dineType: "ทานที่ร้าน",
+      customerName: "Best", phone: "0898887773", offset: 30, dineType: "ทานที่ร้าน",
       cart: [{ menuId: "m4", addons: [], spiceLevel: "เผ็ดมาก", note: "" }]
-    },
-    {
-      customerName: "Aom", phone: "0898887774", offset: 8, dineType: "กลับบ้าน",
-      cart: [
-        { menuId: "m9", addons: [], spiceLevel: "ไม่เผ็ด", note: "ไม่กินผัก" },
-        { menuId: "m13", addons: [], spiceLevel: "ไม่เผ็ด", note: "" }
-      ]
-    },
-    {
-      customerName: "Guy", phone: "0898887775", offset: 15, dineType: "ทานที่ร้าน",
-      cart: [
-        { menuId: "m1", addons: ["a2", "a3"], spiceLevel: "เผ็ดปานกลาง", note: "" },
-        { menuId: "m1", addons: ["a1"], spiceLevel: "ไม่เผ็ด", note: "สั่งให้เพื่อนด้วย" }
-      ]
     }
   ];
 
-  seedData.forEach(function (item) {
+  demoData.forEach(function (item) {
     queueCounter++;
     allOrders.push({
       queueNumber: queueCounter,
